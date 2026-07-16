@@ -1,0 +1,67 @@
+version: 2
+
+project_name: forgebit
+
+before:
+  hooks:
+    - go mod tidy
+
+builds:
+  - id: forgebit
+    main: .
+    binary: forgebit
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - darwin
+      - windows
+    goarch:
+      - amd64
+      - arm64
+    ldflags:
+      - -s -w -X github.com/boone-studios/forgebit-cli/cmd.version={{.Version}}
+
+archives:
+  - id: forgebit
+    formats: [tar.gz]
+    name_template: >-
+      {{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+    files:
+      - LICENSE
+      - README.md
+      - CHANGELOG.md
+
+checksum:
+  name_template: "checksums.txt"
+
+changelog:
+  use: github
+  sort: asc
+  filters:
+    exclude:
+      - "^test:"
+      - "^chore:"
+      - "^docs:"
+
+homebrew_casks:
+  - name: forgebit
+    repository:
+      owner: boone-studios
+      name: homebrew-tap
+      token: "{{ .Env.HOMEBREW_TAP_GITHUB_TOKEN }}"
+    directory: Casks
+    homepage: "https://forgebit.io"
+    description: "CLI for Forgebit — issue, verify, and manage software licenses from the terminal"
+    license: "MIT"
+    binaries:
+      - forgebit
+
+release:
+  github:
+    owner: boone-studios
+    name: forgebit-cli
+  prerelease: auto

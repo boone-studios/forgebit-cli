@@ -2,9 +2,15 @@
 
 A standalone CLI for [Forgebit](https://forgebit.io) — issue, verify, and manage software licenses from the terminal, with fully offline signature verification for supported license types.
 
-> Pre-release. No tagged versions or prebuilt binaries yet — see [CHANGELOG.md](CHANGELOG.md).
-
 ## Install
+
+### Homebrew
+
+```
+brew install boone-studios/tap/forgebit
+```
+
+### From source
 
 Requires Go 1.26+.
 
