@@ -15,6 +15,7 @@ Pre-release — nothing has shipped yet.
   - `forgebit vendor list` / `forgebit vendor switch <id|name>`
   - `--vendor <id|name>` on any command to target one vendor for a single call without changing the active default
 - `forgebit licenses issue|list|show|verify|revoke|renew` against the Forgebit license API
+- `forgebit products list|show|create|update|archive|restore` against the Forgebit products API
 - `forgebit licenses public-key` — fetch a vendor's Ed25519 public key
 - Fully offline license verification (`forgebit licenses verify --offline`) for `jwt` and `forgebit`-type keys, checked locally with no network call
 - `forgebit status` — reports whether the CLI is running against the API or offline data
