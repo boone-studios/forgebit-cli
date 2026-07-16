@@ -22,6 +22,21 @@ builds:
     ldflags:
       - -s -w -X github.com/boone-studios/forgebit-cli/cmd.version={{.Version}}
 
+notarize:
+  macos:
+    - enabled: '{{ isEnvSet "MACOS_SIGN_P12" }}'
+      ids:
+        - forgebit
+      sign:
+        certificate: "{{.Env.MACOS_SIGN_P12}}"
+        password: "{{.Env.MACOS_SIGN_PASSWORD}}"
+      notarize:
+        issuer_id: "{{.Env.MACOS_NOTARY_ISSUER_ID}}"
+        key_id: "{{.Env.MACOS_NOTARY_KEY_ID}}"
+        key: "{{.Env.MACOS_NOTARY_KEY}}"
+        wait: true
+        timeout: 20m
+
 archives:
   - id: forgebit
     formats: [tar.gz]
@@ -59,12 +74,6 @@ homebrew_casks:
     license: "MIT"
     binaries:
       - forgebit
-    hooks:
-      post:
-        install: |
-          if OS.mac?
-            system_command "/usr/bin/xattr", args: ["-dr", "com.apple.quarantine", "#{staged_path}/forgebit"]
-          end
 
 release:
   github:
