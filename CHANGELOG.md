@@ -25,3 +25,4 @@ Pre-release — nothing has shipped yet.
 
 - Errors were printed twice (once by Cobra, once by our own handler)
 - A revoked or expired token now shows a clear message telling you to log in again, instead of a raw 401
+- Re-running `forgebit login` for a vendor you're already logged into now revokes the old key instead of leaving it behind

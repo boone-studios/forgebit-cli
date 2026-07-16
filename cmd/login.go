@@ -39,6 +39,8 @@ var loginCmd = &cobra.Command{
 			return err
 		}
 
+		previous, hadPrevious := cfg.ProfileForVendor(result.VendorID)
+
 		newCfg := cfg
 		newCfg.Token = result.Token // Legacy field, kept in sync for back-compat
 		newCfg.UpsertProfile(config.VendorProfile{
@@ -49,6 +51,10 @@ var loginCmd = &cobra.Command{
 		newCfg.ActiveVendorID = result.VendorID
 		if err := config.Save(newCfg); err != nil {
 			return err
+		}
+
+		if hadPrevious && previous.Token != result.Token {
+			revokeBestEffort(c.Context(), previous.Token)
 		}
 
 		fmt.Printf("Logged in as %s (vendor %s). This is now your active vendor.\n", result.VendorName, result.VendorID)
