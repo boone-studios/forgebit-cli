@@ -59,6 +59,12 @@ homebrew_casks:
     license: "MIT"
     binaries:
       - forgebit
+    hooks:
+      post:
+        install: |
+          if OS.mac?
+            system_command "/usr/bin/xattr", args: ["-dr", "com.apple.quarantine", "#{staged_path}/forgebit"]
+          end
 
 release:
   github:

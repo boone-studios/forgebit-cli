@@ -6,6 +6,12 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [0.1.1] - 2026-07-16
+
+### Fixed
+
+- Homebrew cask now strips the macOS quarantine attribute on install — the unsigned `forgebit` binary was being killed by Gatekeeper (exit 137) on launch
+
 ## [0.1.0] - 2026-07-16
 
 ### Added
