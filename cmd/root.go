@@ -3,6 +3,7 @@ package cmd
 import (
 	"errors"
 	"fmt"
+	"net/http"
 	"os"
 
 	"github.com/boone-studios/forgebit-cli/internal/config"
@@ -19,14 +20,23 @@ var rootCmd = &cobra.Command{
 	Short: "forgebit-cli is a standalone tool for working with Forgebit",
 	Long: `forgebit-cli talks to the Forgebit API when a connection and
 credentials are available, and falls back to local offline data otherwise.`,
-	SilenceUsage: true,
+	SilenceUsage:  true,
+	SilenceErrors: true,
 }
 
 func Execute() {
 	if err := rootCmd.Execute(); err != nil {
-		fmt.Fprintln(os.Stderr, err)
+		fmt.Fprintln(os.Stderr, friendlyError(err))
 		os.Exit(1)
 	}
+}
+
+func friendlyError(err error) string {
+	var apiErr *forgebit.APIError
+	if errors.As(err, &apiErr) && apiErr.StatusCode == http.StatusUnauthorized {
+		return "Your session has expired or was revoked, run `forgebit login` again"
+	}
+	return err.Error()
 }
 
 // Order matters: explicit token, then --vendor, then active profile, then legacy token

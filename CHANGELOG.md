@@ -19,3 +19,9 @@ Pre-release — nothing has shipped yet.
 - Fully offline license verification (`forgebit licenses verify --offline`) for `jwt` and `forgebit`-type keys, checked locally with no network call
 - `forgebit status` — reports whether the CLI is running against the API or offline data
 - `--json` output on `licenses` commands for scripting
+- `--version` flag
+
+### Fixed
+
+- Errors were printed twice (once by Cobra, once by our own handler)
+- A revoked or expired token now shows a clear message telling you to log in again, instead of a raw 401
