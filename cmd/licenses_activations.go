@@ -2,9 +2,22 @@ package cmd
 
 import (
 	"fmt"
+	"strings"
+	"unicode"
 
 	"github.com/spf13/cobra"
 )
+
+// Client identifiers come from customer devices, so strip control characters
+// (e.g. ANSI escapes) before they reach the vendor's terminal
+func printable(s string) string {
+	return strings.Map(func(r rune) rune {
+		if unicode.IsPrint(r) {
+			return r
+		}
+		return -1
+	}, s)
+}
 
 var activationsCmd = &cobra.Command{
 	Use:   "activations <license-id>",
@@ -35,7 +48,8 @@ var activationsCmd = &cobra.Command{
 			if a.LastCheckIn != nil {
 				lastCheckIn = *a.LastCheckIn
 			}
-			fmt.Printf("%s  client:%s  activated:%s  last_check_in:%s\n", a.ID, a.ClientIdentifier, a.ActivatedAt, lastCheckIn)
+			fmt.Printf("%s  client:%s  activated:%s  last_check_in:%s\n",
+				printable(a.ID), printable(a.ClientIdentifier), printable(a.ActivatedAt), printable(lastCheckIn))
 		}
 
 		meta := result.Meta
