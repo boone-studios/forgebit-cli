@@ -349,6 +349,19 @@ func (c *APIClient) VendorKeys(ctx context.Context, vendorID string) ([]VendorKe
 	return out, err
 }
 
+// Like the list endpoint, this has no success envelope
+type CreateVendorKeyResponse struct {
+	Message string `json:"message"`
+	Kid     string `json:"kid"`
+}
+
+// Rate-limited server-side to one key per 10 minutes, plus a total cap
+func (c *APIClient) CreateVendorKey(ctx context.Context, vendorID string) (CreateVendorKeyResponse, error) {
+	var out CreateVendorKeyResponse
+	err := c.doJSONIdempotent(ctx, http.MethodPost, "/v1/vendors/"+vendorID+"/keys", nil, &out)
+	return out, err
+}
+
 // The PEM body is a raw Ed25519 key, not SPKI/DER, see internal/licenseverify
 func (c *APIClient) VendorPublicKeyPEM(ctx context.Context, vendorID, kid string) (string, error) {
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, c.BaseURL+"/v1/vendors/"+vendorID+"/keys/"+kid+".pem", nil)

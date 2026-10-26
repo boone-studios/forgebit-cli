@@ -237,3 +237,32 @@ func TestLookupCustomerLicensesSendsEmailInBody(t *testing.T) {
 		t.Fatalf("unexpected result: %+v", got)
 	}
 }
+
+func TestCreateVendorKey(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodPost || r.URL.Path != "/v1/vendors/vnd_1/keys" || r.Header.Get("Idempotency-Key") == "" {
+			t.Fatalf("unexpected request: %s %s idempotency %q", r.Method, r.URL.Path, r.Header.Get("Idempotency-Key"))
+		}
+		w.WriteHeader(http.StatusCreated)
+		_ = json.NewEncoder(w).Encode(map[string]any{"message": "Key generated.", "kid": "fb_abc123"})
+	}))
+	defer server.Close()
+
+	result, err := NewAPIClient(server.URL, "secret").CreateVendorKey(context.Background(), "vnd_1")
+	if err != nil || result.Kid != "fb_abc123" {
+		t.Fatalf("unexpected result: %+v, %v", result, err)
+	}
+}
+
+func TestCreateVendorKeyLimitIsAPIError(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusTooManyRequests)
+		_ = json.NewEncoder(w).Encode(map[string]any{"message": "Key limit reached (5)."})
+	}))
+	defer server.Close()
+
+	_, err := NewAPIClient(server.URL, "secret").CreateVendorKey(context.Background(), "vnd_1")
+	if err == nil || err.Error() != "Key limit reached (5)." {
+		t.Fatalf("expected the server's limit message, got %v", err)
+	}
+}

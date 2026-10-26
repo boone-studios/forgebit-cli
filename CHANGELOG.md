@@ -14,11 +14,13 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - `forgebit licenses deactivate-all <license-id>` — end every active session for a license
 - `forgebit products release <product-id> --file <artifact> --version <x.y.z>` — create a version, upload the artifact, verify its SHA-256, and wait for processing to finish
 - `forgebit licenses lookup --product-id <id> --email <email>` — find every license a customer holds for a product by exact email; shows keys when the API key has `download_license`
+- `forgebit licenses keys list` and `forgebit licenses keys create` — list the vendor's Ed25519 signing keys or generate a new one (`create` asks for confirmation, since apps verifying offline may need the new public key; `--yes` skips it)
 
 ### Changed
 
 - `forgebit status` reports whether credentials and an API URL are configured, instead of calling a placeholder health endpoint that didn't exist
 - `--json` is now available on every `licenses`, `products`, and `webhooks` subcommand
+- `licenses public-key` no longer requires `--vendor-id`; it defaults to the vendor the CLI is acting as (`--vendor` or the active profile)
 
 ### Fixed
 
