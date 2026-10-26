@@ -131,6 +131,7 @@ var listCmd = &cobra.Command{
 		active, _ := flags.GetBool("active")
 		inactive, _ := flags.GetBool("inactive")
 		perPage, _ := flags.GetInt("per-page")
+		cursor, _ := flags.GetString("cursor")
 		asJSON, _ := flags.GetBool("json")
 
 		if active && inactive {
@@ -153,6 +154,7 @@ var listCmd = &cobra.Command{
 			LicenseType: licenseType,
 			IsActive:    isActive,
 			PerPage:     perPage,
+			Cursor:      cursor,
 		})
 		if err != nil {
 			return err
@@ -171,7 +173,7 @@ var listCmd = &cobra.Command{
 				license.ID, license.Tier, license.LicenseType, license.Environment, formatExpiry(license.ExpiresAt))
 		}
 		if result.Meta.Pagination.NextCursor != nil {
-			fmt.Printf("(more results — next cursor: %s)\n", *result.Meta.Pagination.NextCursor)
+			fmt.Printf("(more results — run again with --cursor %s)\n", *result.Meta.Pagination.NextCursor)
 		}
 		return nil
 	},
@@ -231,6 +233,7 @@ func init() {
 	listCmd.Flags().String("license-type", "", "filter by license type slug")
 	listCmd.Flags().Bool("active", false, "only active licenses")
 	listCmd.Flags().Bool("inactive", false, "only inactive/expired/revoked licenses")
+	listCmd.Flags().String("cursor", "", "page cursor from a previous list's output")
 	listCmd.Flags().Int("per-page", 15, "results per page (max 100)")
 
 	licensesCmd.AddCommand(issueCmd, listCmd, showCmd)

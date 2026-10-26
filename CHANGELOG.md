@@ -11,6 +11,10 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - `forgebit status` reports whether credentials and an API URL are configured, instead of calling a placeholder health endpoint that didn't exist
 - `--json` is now available on every `licenses`, `products`, and `webhooks` subcommand
 
+### Fixed
+
+- List commands printed a next-page cursor but had no way to use it; `licenses list`, `products list`, `webhooks list`, and `webhooks logs list` now take `--cursor`
+
 ### Removed
 
 - The pre-release single-account `token` config field. Credentials live only in vendor profiles; `--token` still works for one-off calls

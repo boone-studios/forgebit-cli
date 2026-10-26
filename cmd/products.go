@@ -36,11 +36,13 @@ var productsListCmd = &cobra.Command{
 		flags := c.Flags()
 		search, _ := flags.GetString("search")
 		perPage, _ := flags.GetInt("per-page")
+		cursor, _ := flags.GetString("cursor")
 		asJSON, _ := flags.GetBool("json")
 
 		result, err := client.ListProducts(c.Context(), forgebit.ListProductsParams{
 			Search:  search,
 			PerPage: perPage,
+			Cursor:  cursor,
 		})
 		if err != nil {
 			return err
@@ -58,7 +60,7 @@ var productsListCmd = &cobra.Command{
 			fmt.Printf("%s  %s  slug:%s\n", product.ID, product.Name, product.Slug)
 		}
 		if result.Meta.Pagination.NextCursor != nil {
-			fmt.Printf("(more results — next cursor: %s)\n", *result.Meta.Pagination.NextCursor)
+			fmt.Printf("(more results — run again with --cursor %s)\n", *result.Meta.Pagination.NextCursor)
 		}
 		return nil
 	},
@@ -242,6 +244,7 @@ var productsRestoreCmd = &cobra.Command{
 
 func init() {
 	productsListCmd.Flags().String("search", "", "filter by product name (substring match)")
+	productsListCmd.Flags().String("cursor", "", "page cursor from a previous list's output")
 	productsListCmd.Flags().Int("per-page", 15, "results per page (max 100)")
 
 	productsCreateCmd.Flags().String("name", "", "product name (required)")

@@ -48,12 +48,16 @@ func (c *APIClient) CreateWebhook(ctx context.Context, params CreateWebhookParam
 
 type ListWebhooksParams struct {
 	PerPage int
+	Cursor  string
 }
 
 func (c *APIClient) ListWebhooks(ctx context.Context, params ListWebhooksParams) (ListResponse[WebhookEndpoint], error) {
 	query := url.Values{}
 	if params.PerPage > 0 {
 		query.Set("per_page", strconv.Itoa(params.PerPage))
+	}
+	if params.Cursor != "" {
+		query.Set("cursor", params.Cursor)
 	}
 
 	path := "/v1/webhooks"
@@ -124,6 +128,7 @@ type ListWebhookLogsParams struct {
 	EndpointID string
 	Status     string
 	PerPage    int
+	Cursor     string
 }
 
 func (c *APIClient) ListWebhookLogs(ctx context.Context, params ListWebhookLogsParams) (ListResponse[WebhookLog], error) {
@@ -136,6 +141,9 @@ func (c *APIClient) ListWebhookLogs(ctx context.Context, params ListWebhookLogsP
 	}
 	if params.PerPage > 0 {
 		query.Set("per_page", strconv.Itoa(params.PerPage))
+	}
+	if params.Cursor != "" {
+		query.Set("cursor", params.Cursor)
 	}
 
 	path := "/v1/webhooks/logs"

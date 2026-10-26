@@ -49,9 +49,10 @@ var webhooksListCmd = &cobra.Command{
 		}
 
 		perPage, _ := c.Flags().GetInt("per-page")
+		cursor, _ := c.Flags().GetString("cursor")
 		asJSON, _ := c.Flags().GetBool("json")
 
-		result, err := client.ListWebhooks(c.Context(), forgebit.ListWebhooksParams{PerPage: perPage})
+		result, err := client.ListWebhooks(c.Context(), forgebit.ListWebhooksParams{PerPage: perPage, Cursor: cursor})
 		if err != nil {
 			return err
 		}
@@ -68,7 +69,7 @@ var webhooksListCmd = &cobra.Command{
 			fmt.Printf("%s  %s  %s  enabled:%v\n", endpoint.ID, formatWebhookName(endpoint.Name), endpoint.URL, endpoint.IsEnabled)
 		}
 		if result.Meta.Pagination.NextCursor != nil {
-			fmt.Printf("(more results — next cursor: %s)\n", *result.Meta.Pagination.NextCursor)
+			fmt.Printf("(more results — run again with --cursor %s)\n", *result.Meta.Pagination.NextCursor)
 		}
 		return nil
 	},
@@ -288,12 +289,14 @@ var webhooksLogsListCmd = &cobra.Command{
 		endpointID, _ := flags.GetString("endpoint")
 		status, _ := flags.GetString("status")
 		perPage, _ := flags.GetInt("per-page")
+		cursor, _ := flags.GetString("cursor")
 		asJSON, _ := flags.GetBool("json")
 
 		result, err := client.ListWebhookLogs(c.Context(), forgebit.ListWebhookLogsParams{
 			EndpointID: endpointID,
 			Status:     status,
 			PerPage:    perPage,
+			Cursor:     cursor,
 		})
 		if err != nil {
 			return err
@@ -311,7 +314,7 @@ var webhooksLogsListCmd = &cobra.Command{
 			fmt.Printf("%s  event:%s  status:%s  http_code:%s  retries:%d\n", log.ID, log.Event, log.Status, formatHTTPCode(log.HTTPCode), log.RetryCount)
 		}
 		if result.Meta.Pagination.NextCursor != nil {
-			fmt.Printf("(more results — next cursor: %s)\n", *result.Meta.Pagination.NextCursor)
+			fmt.Printf("(more results — run again with --cursor %s)\n", *result.Meta.Pagination.NextCursor)
 		}
 		return nil
 	},
@@ -344,6 +347,7 @@ var webhooksLogsReplayCmd = &cobra.Command{
 }
 
 func init() {
+	webhooksListCmd.Flags().String("cursor", "", "page cursor from a previous list's output")
 	webhooksListCmd.Flags().Int("per-page", 15, "results per page (max 100)")
 
 	webhooksCreateCmd.Flags().String("name", "", "webhook endpoint name")
@@ -362,6 +366,7 @@ func init() {
 
 	webhooksLogsListCmd.Flags().String("endpoint", "", "filter by webhook endpoint ID")
 	webhooksLogsListCmd.Flags().String("status", "", "filter by status (pending, success, failed, permanent_failure)")
+	webhooksLogsListCmd.Flags().String("cursor", "", "page cursor from a previous list's output")
 	webhooksLogsListCmd.Flags().Int("per-page", 15, "results per page (max 100)")
 
 	webhooksLogsCmd.AddCommand(webhooksLogsListCmd, webhooksLogsReplayCmd)

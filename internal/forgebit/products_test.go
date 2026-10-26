@@ -43,7 +43,7 @@ func TestCreateProduct(t *testing.T) {
 func TestListProductsBuildsQueryString(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		q := r.URL.Query()
-		if q.Get("search") != "test" || q.Get("per_page") != "10" {
+		if q.Get("search") != "test" || q.Get("per_page") != "10" || q.Get("cursor") != "c1" {
 			t.Fatalf("unexpected query: %s", r.URL.RawQuery)
 		}
 		nextCursor := "abc123"
@@ -56,7 +56,7 @@ func TestListProductsBuildsQueryString(t *testing.T) {
 	defer server.Close()
 
 	client := NewAPIClient(server.URL, "secret")
-	result, err := client.ListProducts(context.Background(), ListProductsParams{Search: "test", PerPage: 10})
+	result, err := client.ListProducts(context.Background(), ListProductsParams{Search: "test", PerPage: 10, Cursor: "c1"})
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}

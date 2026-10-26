@@ -44,6 +44,7 @@ func (c *APIClient) CreateProduct(ctx context.Context, params CreateProductParam
 type ListProductsParams struct {
 	Search  string
 	PerPage int
+	Cursor  string
 }
 
 func (c *APIClient) ListProducts(ctx context.Context, params ListProductsParams) (ListResponse[Product], error) {
@@ -53,6 +54,9 @@ func (c *APIClient) ListProducts(ctx context.Context, params ListProductsParams)
 	}
 	if params.PerPage > 0 {
 		query.Set("per_page", strconv.Itoa(params.PerPage))
+	}
+	if params.Cursor != "" {
+		query.Set("cursor", params.Cursor)
 	}
 
 	path := "/v1/products"

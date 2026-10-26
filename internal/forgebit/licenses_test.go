@@ -46,7 +46,7 @@ func TestIssueLicense(t *testing.T) {
 func TestListLicensesBuildsQueryString(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		q := r.URL.Query()
-		if q.Get("product_id") != "prod_1" || q.Get("is_active") != "true" || q.Get("per_page") != "10" {
+		if q.Get("product_id") != "prod_1" || q.Get("is_active") != "true" || q.Get("per_page") != "10" || q.Get("cursor") != "c1" {
 			t.Fatalf("unexpected query: %s", r.URL.RawQuery)
 		}
 		nextCursor := "abc123"
@@ -61,7 +61,7 @@ func TestListLicensesBuildsQueryString(t *testing.T) {
 	active := true
 	client := NewAPIClient(server.URL, "secret")
 	result, err := client.ListLicenses(context.Background(), ListLicensesParams{
-		ProductID: "prod_1", IsActive: &active, PerPage: 10,
+		ProductID: "prod_1", IsActive: &active, PerPage: 10, Cursor: "c1",
 	})
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)

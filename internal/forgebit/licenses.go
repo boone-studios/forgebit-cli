@@ -148,6 +148,7 @@ type ListLicensesParams struct {
 	LicenseType string
 	IsActive    *bool
 	PerPage     int
+	Cursor      string
 }
 
 func (c *APIClient) ListLicenses(ctx context.Context, params ListLicensesParams) (ListResponse[License], error) {
@@ -169,6 +170,9 @@ func (c *APIClient) ListLicenses(ctx context.Context, params ListLicensesParams)
 	}
 	if params.PerPage > 0 {
 		query.Set("per_page", strconv.Itoa(params.PerPage))
+	}
+	if params.Cursor != "" {
+		query.Set("cursor", params.Cursor)
 	}
 
 	path := "/v1/licenses"
