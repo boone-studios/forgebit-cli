@@ -6,6 +6,7 @@ import (
 	"io"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 )
 
@@ -69,5 +70,44 @@ func TestProductDownloadLinkSendsChannel(t *testing.T) {
 	result, err := NewAPIClient(server.URL, "secret").ProductDownloadLink(context.Background(), "lic_1", "beta")
 	if err != nil || result.Data.DownloadURL != "https://storage/x.zip" {
 		t.Fatalf("unexpected result: %+v, %v", result, err)
+	}
+}
+
+func TestUploadLicenseFileSendsMultipart(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodPost || r.URL.Path != "/v1/licenses/lic_1/upload-license" || r.Header.Get("Authorization") != "Bearer secret" {
+			t.Fatalf("unexpected request: %s %s", r.Method, r.URL.Path)
+		}
+		file, header, err := r.FormFile("file")
+		if err != nil {
+			t.Fatalf("no file part: %v", err)
+		}
+		data, _ := io.ReadAll(file)
+		if header.Filename != "custom.lic" || string(data) != "LICENSE-DATA" {
+			t.Fatalf("unexpected part: %q %q", header.Filename, data)
+		}
+		_ = json.NewEncoder(w).Encode(map[string]any{"message": "License file uploaded successfully.", "path": "licenses/vnd/lic_1.lic"})
+	}))
+	defer server.Close()
+
+	result, err := NewAPIClient(server.URL, "secret").UploadLicenseFile(context.Background(), "lic_1", "/some/dir/custom.lic", strings.NewReader("LICENSE-DATA"))
+	if err != nil || result.Path != "licenses/vnd/lic_1.lic" {
+		t.Fatalf("unexpected result: %+v, %v", result, err)
+	}
+}
+
+func TestDeleteUploadedLicenseFileNotFound(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodDelete || r.URL.Path != "/v1/licenses/lic_1/uploaded-license" {
+			t.Fatalf("unexpected request: %s %s", r.Method, r.URL.Path)
+		}
+		w.WriteHeader(http.StatusNotFound)
+		_ = json.NewEncoder(w).Encode(map[string]any{"message": "No uploaded license file found."})
+	}))
+	defer server.Close()
+
+	_, err := NewAPIClient(server.URL, "secret").DeleteUploadedLicenseFile(context.Background(), "lic_1")
+	if err == nil || err.Error() != "No uploaded license file found." {
+		t.Fatalf("expected the server's 404 message, got %v", err)
 	}
 }

@@ -1,10 +1,12 @@
 package forgebit
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"io"
 	"mime"
+	"mime/multipart"
 	"net/http"
 	"path/filepath"
 )
@@ -69,5 +71,43 @@ func (c *APIClient) ProductDownloadLink(ctx context.Context, licenseID, channel 
 
 	var out Response[ProductDownloadLink]
 	err := c.doJSON(ctx, http.MethodPost, "/v1/licenses/"+licenseID+"/download-link", body, &out)
+	return out, err
+}
+
+type UploadedLicenseFile struct {
+	Message string `json:"message"`
+	Path    string `json:"path"`
+}
+
+// Replaces the built-in generator's file for this license. The server accepts
+// .lic, .json, .enc, or .xml up to 5 MB, so buffering in memory is fine
+func (c *APIClient) UploadLicenseFile(ctx context.Context, licenseID, filename string, content io.Reader) (UploadedLicenseFile, error) {
+	var buf bytes.Buffer
+	form := multipart.NewWriter(&buf)
+	part, err := form.CreateFormFile("file", filepath.Base(filename))
+	if err != nil {
+		return UploadedLicenseFile{}, err
+	}
+	if _, err := io.Copy(part, content); err != nil {
+		return UploadedLicenseFile{}, err
+	}
+	if err := form.Close(); err != nil {
+		return UploadedLicenseFile{}, err
+	}
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, c.BaseURL+"/v1/licenses/"+licenseID+"/upload-license", &buf)
+	if err != nil {
+		return UploadedLicenseFile{}, err
+	}
+	req.Header.Set("Content-Type", form.FormDataContentType())
+
+	var out UploadedLicenseFile
+	err = c.send(req, &out)
+	return out, err
+}
+
+func (c *APIClient) DeleteUploadedLicenseFile(ctx context.Context, licenseID string) (MessageResponse, error) {
+	var out MessageResponse
+	err := c.doJSON(ctx, http.MethodDelete, "/v1/licenses/"+licenseID+"/uploaded-license", nil, &out)
 	return out, err
 }

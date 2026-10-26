@@ -59,13 +59,18 @@ func (c *APIClient) doJSONWithHeaders(ctx context.Context, method, path string, 
 	if err != nil {
 		return err
 	}
-	req.Header.Set("Authorization", "Bearer "+c.Token)
 	if body != nil {
 		req.Header.Set("Content-Type", "application/json")
 	}
 	for k, v := range headers {
 		req.Header.Set(k, v)
 	}
+	return c.send(req, out)
+}
+
+// send authenticates req, decodes a JSON response into out, and turns non-2xx into *APIError
+func (c *APIClient) send(req *http.Request, out any) error {
+	req.Header.Set("Authorization", "Bearer "+c.Token)
 
 	resp, err := c.http.Do(req)
 	if err != nil {

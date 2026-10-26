@@ -125,11 +125,67 @@ var downloadLinkCmd = &cobra.Command{
 	},
 }
 
+var uploadFileCmd = &cobra.Command{
+	Use:   "upload-file <license-id> <file>",
+	Short: "Attach your own license file (.lic, .json, .enc, or .xml, max 5 MB) instead of the generated one",
+	Args:  cobra.ExactArgs(2),
+	RunE: func(c *cobra.Command, args []string) error {
+		client, err := resolveAPIClient()
+		if err != nil {
+			return err
+		}
+		asJSON, _ := c.Flags().GetBool("json")
+
+		file, err := os.Open(args[1])
+		if err != nil {
+			return err
+		}
+		defer file.Close()
+
+		result, err := client.UploadLicenseFile(c.Context(), args[0], args[1], file)
+		if err != nil {
+			return err
+		}
+
+		if asJSON {
+			return printJSON(result)
+		}
+
+		fmt.Printf("→ uploaded %s\n", args[1])
+		return nil
+	},
+}
+
+var deleteFileCmd = &cobra.Command{
+	Use:   "delete-file <license-id>",
+	Short: "Remove a previously uploaded license file",
+	Args:  cobra.ExactArgs(1),
+	RunE: func(c *cobra.Command, args []string) error {
+		client, err := resolveAPIClient()
+		if err != nil {
+			return err
+		}
+		asJSON, _ := c.Flags().GetBool("json")
+
+		result, err := client.DeleteUploadedLicenseFile(c.Context(), args[0])
+		if err != nil {
+			return err
+		}
+
+		if asJSON {
+			return printJSON(result)
+		}
+
+		fmt.Println("→ deleted uploaded license file")
+		return nil
+	},
+}
+
 func init() {
 	downloadCmd.Flags().StringP("out", "o", "", "file to write, or - for stdout (default: the server's filename)")
 	downloadCmd.Flags().Bool("force", false, "overwrite the output file if it exists")
 
 	downloadLinkCmd.Flags().String("channel", "", "release channel: stable or beta (server default: stable)")
 
-	licensesCmd.AddCommand(downloadCmd, fileLinkCmd, downloadLinkCmd)
+	licensesCmd.AddCommand(downloadCmd, fileLinkCmd, downloadLinkCmd, uploadFileCmd, deleteFileCmd)
 }

@@ -18,6 +18,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - `forgebit licenses download <license-id>` — save the signed license file (`-o` to name it, `-o -` for stdout; won't overwrite without `--force`)
 - `forgebit licenses file-link <license-id>` — temporary web link to download the license file
 - `forgebit licenses download-link <license-id>` — temporary link to the product artifact the license covers, for your own purchase emails
+- `forgebit licenses upload-file <license-id> <file>` and `forgebit licenses delete-file <license-id>` — attach your own license file (.lic, .json, .enc, or .xml, max 5 MB) in place of the generated one, or remove it
 
 ### Changed
 
