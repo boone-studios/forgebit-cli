@@ -40,14 +40,8 @@ type CreateWebhookParams struct {
 	IsEnabled bool     `json:"is_enabled,omitempty"`
 }
 
-type CreateWebhookResponse struct {
-	Success bool            `json:"success"`
-	Message string          `json:"message"`
-	Data    WebhookEndpoint `json:"data"`
-}
-
-func (c *APIClient) CreateWebhook(ctx context.Context, params CreateWebhookParams) (CreateWebhookResponse, error) {
-	var out CreateWebhookResponse
+func (c *APIClient) CreateWebhook(ctx context.Context, params CreateWebhookParams) (Response[WebhookEndpoint], error) {
+	var out Response[WebhookEndpoint]
 	err := c.doJSONIdempotent(ctx, http.MethodPost, "/v1/webhooks", params, &out)
 	return out, err
 }
@@ -56,20 +50,7 @@ type ListWebhooksParams struct {
 	PerPage int
 }
 
-type ListWebhooksResponse struct {
-	Success bool              `json:"success"`
-	Message string            `json:"message"`
-	Data    []WebhookEndpoint `json:"data"`
-	Meta    struct {
-		Pagination struct {
-			PerPage    int     `json:"per_page"`
-			NextCursor *string `json:"next_cursor"`
-			PrevCursor *string `json:"prev_cursor"`
-		} `json:"pagination"`
-	} `json:"meta"`
-}
-
-func (c *APIClient) ListWebhooks(ctx context.Context, params ListWebhooksParams) (ListWebhooksResponse, error) {
+func (c *APIClient) ListWebhooks(ctx context.Context, params ListWebhooksParams) (ListResponse[WebhookEndpoint], error) {
 	query := url.Values{}
 	if params.PerPage > 0 {
 		query.Set("per_page", strconv.Itoa(params.PerPage))
@@ -80,19 +61,13 @@ func (c *APIClient) ListWebhooks(ctx context.Context, params ListWebhooksParams)
 		path += "?" + encoded
 	}
 
-	var out ListWebhooksResponse
+	var out ListResponse[WebhookEndpoint]
 	err := c.doJSON(ctx, http.MethodGet, path, nil, &out)
 	return out, err
 }
 
-type ShowWebhookResponse struct {
-	Success bool            `json:"success"`
-	Message string          `json:"message"`
-	Data    WebhookEndpoint `json:"data"`
-}
-
-func (c *APIClient) ShowWebhook(ctx context.Context, id string) (ShowWebhookResponse, error) {
-	var out ShowWebhookResponse
+func (c *APIClient) ShowWebhook(ctx context.Context, id string) (Response[WebhookEndpoint], error) {
+	var out Response[WebhookEndpoint]
 	err := c.doJSON(ctx, http.MethodGet, "/v1/webhooks/"+id, nil, &out)
 	return out, err
 }
@@ -104,14 +79,8 @@ type UpdateWebhookParams struct {
 	IsEnabled *bool    `json:"is_enabled,omitempty"`
 }
 
-type UpdateWebhookResponse struct {
-	Success bool            `json:"success"`
-	Message string          `json:"message"`
-	Data    WebhookEndpoint `json:"data"`
-}
-
-func (c *APIClient) UpdateWebhook(ctx context.Context, id string, params UpdateWebhookParams) (UpdateWebhookResponse, error) {
-	var out UpdateWebhookResponse
+func (c *APIClient) UpdateWebhook(ctx context.Context, id string, params UpdateWebhookParams) (Response[WebhookEndpoint], error) {
+	var out Response[WebhookEndpoint]
 	err := c.doJSON(ctx, http.MethodPatch, "/v1/webhooks/"+id, params, &out)
 	return out, err
 }
@@ -127,14 +96,8 @@ func (c *APIClient) DeleteWebhook(ctx context.Context, id string) (DeleteWebhook
 	return out, err
 }
 
-type RotateWebhookSecretResponse struct {
-	Success bool            `json:"success"`
-	Message string          `json:"message"`
-	Data    WebhookEndpoint `json:"data"`
-}
-
-func (c *APIClient) RotateWebhookSecret(ctx context.Context, id string) (RotateWebhookSecretResponse, error) {
-	var out RotateWebhookSecretResponse
+func (c *APIClient) RotateWebhookSecret(ctx context.Context, id string) (Response[WebhookEndpoint], error) {
+	var out Response[WebhookEndpoint]
 	err := c.doJSON(ctx, http.MethodPost, "/v1/webhooks/"+id+"/rotate-secret", nil, &out)
 	return out, err
 }
@@ -163,20 +126,7 @@ type ListWebhookLogsParams struct {
 	PerPage    int
 }
 
-type ListWebhookLogsResponse struct {
-	Success bool         `json:"success"`
-	Message string       `json:"message"`
-	Data    []WebhookLog `json:"data"`
-	Meta    struct {
-		Pagination struct {
-			PerPage    int     `json:"per_page"`
-			NextCursor *string `json:"next_cursor"`
-			PrevCursor *string `json:"prev_cursor"`
-		} `json:"pagination"`
-	} `json:"meta"`
-}
-
-func (c *APIClient) ListWebhookLogs(ctx context.Context, params ListWebhookLogsParams) (ListWebhookLogsResponse, error) {
+func (c *APIClient) ListWebhookLogs(ctx context.Context, params ListWebhookLogsParams) (ListResponse[WebhookLog], error) {
 	query := url.Values{}
 	if params.EndpointID != "" {
 		query.Set("webhook_endpoint_id", params.EndpointID)
@@ -193,19 +143,13 @@ func (c *APIClient) ListWebhookLogs(ctx context.Context, params ListWebhookLogsP
 		path += "?" + encoded
 	}
 
-	var out ListWebhookLogsResponse
+	var out ListResponse[WebhookLog]
 	err := c.doJSON(ctx, http.MethodGet, path, nil, &out)
 	return out, err
 }
 
-type ReplayWebhookLogResponse struct {
-	Success bool       `json:"success"`
-	Message string     `json:"message"`
-	Data    WebhookLog `json:"data"`
-}
-
-func (c *APIClient) ReplayWebhookLog(ctx context.Context, id string) (ReplayWebhookLogResponse, error) {
-	var out ReplayWebhookLogResponse
+func (c *APIClient) ReplayWebhookLog(ctx context.Context, id string) (Response[WebhookLog], error) {
+	var out Response[WebhookLog]
 	err := c.doJSON(ctx, http.MethodPost, "/v1/webhooks/logs/"+id+"/replay", nil, &out)
 	return out, err
 }

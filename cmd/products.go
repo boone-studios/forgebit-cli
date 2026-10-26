@@ -13,6 +13,7 @@ var productsCmd = &cobra.Command{
 }
 
 func init() {
+	productsCmd.PersistentFlags().Bool("json", false, "print the API response as JSON")
 	rootCmd.AddCommand(productsCmd)
 }
 
@@ -242,9 +243,6 @@ var productsRestoreCmd = &cobra.Command{
 func init() {
 	productsListCmd.Flags().String("search", "", "filter by product name (substring match)")
 	productsListCmd.Flags().Int("per-page", 15, "results per page (max 100)")
-	productsListCmd.Flags().Bool("json", false, "print the raw API response as JSON")
-
-	productsShowCmd.Flags().Bool("json", false, "print the raw API response as JSON")
 
 	productsCreateCmd.Flags().String("name", "", "product name (required)")
 	productsCreateCmd.Flags().String("slug", "", "product slug, auto-generated from name if omitted")
@@ -255,7 +253,6 @@ func init() {
 	productsCreateCmd.Flags().Bool("require-device-fingerprint", false, "require a device fingerprint on activation")
 	productsCreateCmd.Flags().Bool("stale-detection", false, "enable stale license detection")
 	productsCreateCmd.Flags().Int("stale-threshold-days", 0, "days of inactivity before a license is stale; required with --stale-detection")
-	productsCreateCmd.Flags().Bool("json", false, "print the raw API response as JSON")
 	_ = productsCreateCmd.MarkFlagRequired("name")
 
 	productsUpdateCmd.Flags().String("name", "", "product name (required)")
@@ -266,11 +263,7 @@ func init() {
 	productsUpdateCmd.Flags().Bool("require-device-fingerprint", false, "require a device fingerprint on activation")
 	productsUpdateCmd.Flags().Bool("stale-detection", false, "enable stale license detection")
 	productsUpdateCmd.Flags().Int("stale-threshold-days", 0, "days of inactivity before a license is stale; required with --stale-detection")
-	productsUpdateCmd.Flags().Bool("json", false, "print the raw API response as JSON")
 	_ = productsUpdateCmd.MarkFlagRequired("name")
-
-	productsArchiveCmd.Flags().Bool("json", false, "print the raw API response as JSON")
-	productsRestoreCmd.Flags().Bool("json", false, "print the raw API response as JSON")
 
 	productsCmd.AddCommand(productsListCmd, productsShowCmd, productsCreateCmd, productsUpdateCmd, productsArchiveCmd, productsRestoreCmd)
 }

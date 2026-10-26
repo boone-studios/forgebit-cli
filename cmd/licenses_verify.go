@@ -113,7 +113,6 @@ func init() {
 	verifyCmd.Flags().String("product-id", "", "restrict the online check to a specific product")
 	verifyCmd.Flags().Bool("offline", false, "verify locally with no network call (jwt/forgebit key types only)")
 	verifyCmd.Flags().String("public-key", "", "vendor public key PEM file, required with --offline")
-	verifyCmd.Flags().Bool("json", false, "print the raw result as JSON")
 
 	licensesCmd.AddCommand(verifyCmd)
 }

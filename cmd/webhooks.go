@@ -13,6 +13,7 @@ var webhooksCmd = &cobra.Command{
 }
 
 func init() {
+	webhooksCmd.PersistentFlags().Bool("json", false, "print the API response as JSON")
 	rootCmd.AddCommand(webhooksCmd)
 }
 
@@ -344,15 +345,11 @@ var webhooksLogsReplayCmd = &cobra.Command{
 
 func init() {
 	webhooksListCmd.Flags().Int("per-page", 15, "results per page (max 100)")
-	webhooksListCmd.Flags().Bool("json", false, "print the raw API response as JSON")
-
-	webhooksShowCmd.Flags().Bool("json", false, "print the raw API response as JSON")
 
 	webhooksCreateCmd.Flags().String("name", "", "webhook endpoint name")
 	webhooksCreateCmd.Flags().String("url", "", "webhook endpoint URL (required)")
 	webhooksCreateCmd.Flags().StringArray("event", nil, "event to subscribe to, repeatable (required)")
 	webhooksCreateCmd.Flags().Bool("disabled", false, "create the endpoint disabled")
-	webhooksCreateCmd.Flags().Bool("json", false, "print the raw API response as JSON")
 	_ = webhooksCreateCmd.MarkFlagRequired("url")
 
 	webhooksUpdateCmd.Flags().String("name", "", "webhook endpoint name")
@@ -360,20 +357,12 @@ func init() {
 	webhooksUpdateCmd.Flags().StringArray("event", nil, "event to subscribe to, repeatable")
 	webhooksUpdateCmd.Flags().Bool("enabled", false, "enable the endpoint")
 	webhooksUpdateCmd.Flags().Bool("disabled", false, "disable the endpoint")
-	webhooksUpdateCmd.Flags().Bool("json", false, "print the raw API response as JSON")
-
-	webhooksDeleteCmd.Flags().Bool("json", false, "print the raw API response as JSON")
-	webhooksRotateSecretCmd.Flags().Bool("json", false, "print the raw API response as JSON")
 
 	webhooksTestCmd.Flags().String("event", "webhook.test", "event to simulate")
-	webhooksTestCmd.Flags().Bool("json", false, "print the raw API response as JSON")
 
 	webhooksLogsListCmd.Flags().String("endpoint", "", "filter by webhook endpoint ID")
 	webhooksLogsListCmd.Flags().String("status", "", "filter by status (pending, success, failed, permanent_failure)")
 	webhooksLogsListCmd.Flags().Int("per-page", 15, "results per page (max 100)")
-	webhooksLogsListCmd.Flags().Bool("json", false, "print the raw API response as JSON")
-
-	webhooksLogsReplayCmd.Flags().Bool("json", false, "print the raw API response as JSON")
 
 	webhooksLogsCmd.AddCommand(webhooksLogsListCmd, webhooksLogsReplayCmd)
 

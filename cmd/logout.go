@@ -42,12 +42,8 @@ func logoutAll(ctx context.Context) error {
 	for _, p := range cfg.Profiles {
 		revokeBestEffort(ctx, p.Token)
 	}
-	if len(cfg.Profiles) == 0 && cfg.Token != "" {
-		revokeBestEffort(ctx, cfg.Token)
-	}
 
 	cleared := cfg
-	cleared.Token = ""
 	cleared.ActiveVendorID = ""
 	cleared.Profiles = nil
 	if err := config.Save(cleared); err != nil {
@@ -75,13 +71,8 @@ func logoutOne(ctx context.Context) error {
 	}
 
 	if !haveTarget {
-		if cfg.Token == "" {
-			fmt.Println("Already logged out.")
-			return nil
-		}
-		revokeBestEffort(ctx, cfg.Token)
-		newCfg.Token = ""
-		return config.Save(newCfg)
+		fmt.Println("Already logged out.")
+		return nil
 	}
 
 	revokeBestEffort(ctx, target.Token)
@@ -94,10 +85,6 @@ func logoutOne(ctx context.Context) error {
 			fmt.Printf("Logged out of %s. %s is now your active vendor.\n", target.VendorName, newCfg.Profiles[0].VendorName)
 			return config.Save(newCfg)
 		}
-	}
-
-	if newCfg.Token == target.Token {
-		newCfg.Token = ""
 	}
 
 	fmt.Printf("Logged out of %s.\n", target.VendorName)

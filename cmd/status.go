@@ -1,41 +1,28 @@
 package cmd
 
 import (
-	"context"
 	"fmt"
 
-	"github.com/boone-studios/forgebit-cli/internal/forgebit"
 	"github.com/spf13/cobra"
 )
 
 var statusCmd = &cobra.Command{
 	Use:   "status",
-	Short: "Show whether the CLI is running against the API or offline data",
+	Short: "Show whether the CLI is set up to talk to the API",
 	RunE: func(c *cobra.Command, args []string) error {
-		backend, err := resolveBackend()
-		if err != nil {
-			return err
+		// No credential just means offline, not an error
+		if _, err := resolveAPIClient(); err != nil {
+			fmt.Println("mode:    offline")
+			fmt.Printf("details: %s\n", err)
+			return nil
 		}
 
-		status, err := backend.Ping(context.Background())
-		if err != nil {
-			return err
-		}
-
-		fmt.Printf("mode:    %s\n", status.Source)
-		fmt.Printf("details: %s\n", status.Details)
+		fmt.Println("mode:    api")
+		fmt.Printf("details: %s\n", cfg.APIBaseURL)
 		return nil
 	},
 }
 
 func init() {
 	rootCmd.AddCommand(statusCmd)
-}
-
-// Unlike requireAuth, no credential just means offline, not an error
-func resolveBackend() (forgebit.Backend, error) {
-	if client, err := resolveAPIClient(); err == nil {
-		return client, nil
-	}
-	return forgebit.NewOfflineStore()
 }

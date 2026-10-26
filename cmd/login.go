@@ -42,7 +42,6 @@ var loginCmd = &cobra.Command{
 		previous, hadPrevious := cfg.ProfileForVendor(result.VendorID)
 
 		newCfg := cfg
-		newCfg.Token = result.Token // Legacy field, kept in sync for back-compat
 		newCfg.UpsertProfile(config.VendorProfile{
 			VendorID:   result.VendorID,
 			VendorName: result.VendorName,

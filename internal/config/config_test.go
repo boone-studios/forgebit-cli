@@ -137,3 +137,16 @@ func TestMergeDefaultsFallsBackToDefaultAPIBaseURL(t *testing.T) {
 		t.Fatalf("expected default API base URL, got %q", c.APIBaseURL)
 	}
 }
+
+func TestProfileEditsDoNotAliasOriginal(t *testing.T) {
+	orig := Config{Profiles: []VendorProfile{{VendorID: "vnd_1", Token: "t1"}, {VendorID: "vnd_2", Token: "t2"}}}
+
+	removed := orig
+	removed.RemoveProfile("vnd_1")
+	upserted := orig
+	upserted.UpsertProfile(VendorProfile{VendorID: "vnd_2", Token: "new"})
+
+	if orig.Profiles[0].VendorID != "vnd_1" || orig.Profiles[1].Token != "t2" {
+		t.Fatalf("original profiles were mutated: %+v", orig.Profiles)
+	}
+}

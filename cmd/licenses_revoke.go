@@ -45,7 +45,6 @@ var revokeCmd = &cobra.Command{
 
 func init() {
 	revokeCmd.Flags().String("reason", "", "reason for revocation")
-	revokeCmd.Flags().Bool("json", false, "print the raw API response as JSON")
 
 	licensesCmd.AddCommand(revokeCmd)
 }

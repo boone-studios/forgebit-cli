@@ -6,6 +6,7 @@ import (
 	"crypto/rand"
 	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -149,20 +150,7 @@ type ListLicensesParams struct {
 	PerPage     int
 }
 
-type ListLicensesResponse struct {
-	Success bool      `json:"success"`
-	Message string    `json:"message"`
-	Data    []License `json:"data"`
-	Meta    struct {
-		Pagination struct {
-			PerPage    int     `json:"per_page"`
-			NextCursor *string `json:"next_cursor"`
-			PrevCursor *string `json:"prev_cursor"`
-		} `json:"pagination"`
-	} `json:"meta"`
-}
-
-func (c *APIClient) ListLicenses(ctx context.Context, params ListLicensesParams) (ListLicensesResponse, error) {
+func (c *APIClient) ListLicenses(ctx context.Context, params ListLicensesParams) (ListResponse[License], error) {
 	query := url.Values{}
 	if params.ProductID != "" {
 		query.Set("product_id", params.ProductID)
@@ -188,7 +176,7 @@ func (c *APIClient) ListLicenses(ctx context.Context, params ListLicensesParams)
 		path += "?" + encoded
 	}
 
-	var out ListLicensesResponse
+	var out ListResponse[License]
 	err := c.doJSON(ctx, http.MethodGet, path, nil, &out)
 	return out, err
 }
@@ -231,22 +219,10 @@ func (c *APIClient) VerifyLicenseOnline(ctx context.Context, params VerifyLicens
 	err := c.doJSON(ctx, http.MethodPost, "/v1/verify/license", params, &out)
 
 	var apiErr *APIError
-	if err != nil {
-		if isAPIError(err, &apiErr) && apiErr.StatusCode == 422 {
-			return out, nil
-		}
-		return out, err
+	if errors.As(err, &apiErr) && apiErr.StatusCode == http.StatusUnprocessableEntity {
+		return out, nil
 	}
-
-	return out, nil
-}
-
-func isAPIError(err error, target **APIError) bool {
-	if apiErr, ok := err.(*APIError); ok {
-		*target = apiErr
-		return true
-	}
-	return false
+	return out, err
 }
 
 type RevokeLicenseResponse struct {

@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
 )
 
@@ -17,12 +18,13 @@ type VendorProfile struct {
 
 type Config struct {
 	APIBaseURL string `json:"api_base_url"`
-	Token      string `json:"token"` // Legacy single-account fallback, kept for back-compat
 
 	ActiveVendorID string          `json:"active_vendor_id,omitempty"`
 	Profiles       []VendorProfile `json:"profiles,omitempty"`
 
-	Offline bool `json:"-"` // Flag-only, never persisted
+	// Flag-only, never persisted
+	Token   string `json:"-"`
+	Offline bool   `json:"-"`
 }
 
 func (c Config) ActiveProfile() (VendorProfile, bool) {
@@ -47,7 +49,9 @@ func (c Config) ProfileForVendor(idOrName string) (VendorProfile, bool) {
 	return VendorProfile{}, false
 }
 
+// Upsert and Remove copy before writing, since callers edit a shallow copy of the global cfg
 func (c *Config) UpsertProfile(p VendorProfile) {
+	c.Profiles = slices.Clone(c.Profiles)
 	for i, existing := range c.Profiles {
 		if existing.VendorID == p.VendorID {
 			c.Profiles[i] = p
@@ -58,13 +62,9 @@ func (c *Config) UpsertProfile(p VendorProfile) {
 }
 
 func (c *Config) RemoveProfile(vendorID string) {
-	filtered := c.Profiles[:0]
-	for _, p := range c.Profiles {
-		if p.VendorID != vendorID {
-			filtered = append(filtered, p)
-		}
-	}
-	c.Profiles = filtered
+	c.Profiles = slices.DeleteFunc(slices.Clone(c.Profiles), func(p VendorProfile) bool {
+		return p.VendorID == vendorID
+	})
 }
 
 func path() (string, error) {
@@ -119,9 +119,6 @@ func (c *Config) MergeDefaults(file Config) {
 	}
 	if c.APIBaseURL == "" {
 		c.APIBaseURL = DefaultAPIBaseURL
-	}
-	if c.Token == "" {
-		c.Token = file.Token
 	}
 	// No flags for these, they always come from the file
 	c.ActiveVendorID = file.ActiveVendorID

@@ -35,14 +35,8 @@ type CreateProductParams struct {
 	StaleThresholdDays       int      `json:"stale_threshold_days,omitempty"`
 }
 
-type CreateProductResponse struct {
-	Success bool    `json:"success"`
-	Message string  `json:"message"`
-	Data    Product `json:"data"`
-}
-
-func (c *APIClient) CreateProduct(ctx context.Context, params CreateProductParams) (CreateProductResponse, error) {
-	var out CreateProductResponse
+func (c *APIClient) CreateProduct(ctx context.Context, params CreateProductParams) (Response[Product], error) {
+	var out Response[Product]
 	err := c.doJSONIdempotent(ctx, http.MethodPost, "/v1/products", params, &out)
 	return out, err
 }
@@ -52,20 +46,7 @@ type ListProductsParams struct {
 	PerPage int
 }
 
-type ListProductsResponse struct {
-	Success bool      `json:"success"`
-	Message string    `json:"message"`
-	Data    []Product `json:"data"`
-	Meta    struct {
-		Pagination struct {
-			PerPage    int     `json:"per_page"`
-			NextCursor *string `json:"next_cursor"`
-			PrevCursor *string `json:"prev_cursor"`
-		} `json:"pagination"`
-	} `json:"meta"`
-}
-
-func (c *APIClient) ListProducts(ctx context.Context, params ListProductsParams) (ListProductsResponse, error) {
+func (c *APIClient) ListProducts(ctx context.Context, params ListProductsParams) (ListResponse[Product], error) {
 	query := url.Values{}
 	if params.Search != "" {
 		query.Set("search", params.Search)
@@ -79,19 +60,13 @@ func (c *APIClient) ListProducts(ctx context.Context, params ListProductsParams)
 		path += "?" + encoded
 	}
 
-	var out ListProductsResponse
+	var out ListResponse[Product]
 	err := c.doJSON(ctx, http.MethodGet, path, nil, &out)
 	return out, err
 }
 
-type ShowProductResponse struct {
-	Success bool    `json:"success"`
-	Message string  `json:"message"`
-	Data    Product `json:"data"`
-}
-
-func (c *APIClient) ShowProduct(ctx context.Context, id string) (ShowProductResponse, error) {
-	var out ShowProductResponse
+func (c *APIClient) ShowProduct(ctx context.Context, id string) (Response[Product], error) {
+	var out Response[Product]
 	err := c.doJSON(ctx, http.MethodGet, "/v1/products/"+id, nil, &out)
 	return out, err
 }
@@ -107,38 +82,20 @@ type UpdateProductParams struct {
 	StaleThresholdDays       int      `json:"stale_threshold_days,omitempty"`
 }
 
-type UpdateProductResponse struct {
-	Success bool    `json:"success"`
-	Message string  `json:"message"`
-	Data    Product `json:"data"`
-}
-
-func (c *APIClient) UpdateProduct(ctx context.Context, id string, params UpdateProductParams) (UpdateProductResponse, error) {
-	var out UpdateProductResponse
+func (c *APIClient) UpdateProduct(ctx context.Context, id string, params UpdateProductParams) (Response[Product], error) {
+	var out Response[Product]
 	err := c.doJSON(ctx, http.MethodPatch, "/v1/products/"+id, params, &out)
 	return out, err
 }
 
-type ArchiveProductResponse struct {
-	Success bool    `json:"success"`
-	Message string  `json:"message"`
-	Data    Product `json:"data"`
-}
-
-func (c *APIClient) ArchiveProduct(ctx context.Context, id string) (ArchiveProductResponse, error) {
-	var out ArchiveProductResponse
+func (c *APIClient) ArchiveProduct(ctx context.Context, id string) (Response[Product], error) {
+	var out Response[Product]
 	err := c.doJSON(ctx, http.MethodPost, "/v1/products/"+id+"/archive", nil, &out)
 	return out, err
 }
 
-type RestoreProductResponse struct {
-	Success bool    `json:"success"`
-	Message string  `json:"message"`
-	Data    Product `json:"data"`
-}
-
-func (c *APIClient) RestoreProduct(ctx context.Context, id string) (RestoreProductResponse, error) {
-	var out RestoreProductResponse
+func (c *APIClient) RestoreProduct(ctx context.Context, id string) (Response[Product], error) {
+	var out Response[Product]
 	err := c.doJSON(ctx, http.MethodPost, "/v1/products/"+id+"/restore", nil, &out)
 	return out, err
 }

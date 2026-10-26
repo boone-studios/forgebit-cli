@@ -2,7 +2,6 @@ package forgebit
 
 import (
 	"context"
-	"fmt"
 	"net/http"
 	"time"
 )
@@ -21,43 +20,26 @@ func NewAPIClient(baseURL, token string) *APIClient {
 	}
 }
 
-func (c *APIClient) Ping(ctx context.Context) (Status, error) {
-	// Placeholder endpoint, not real yet
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, c.BaseURL+"/api/health", nil)
-	if err != nil {
-		return Status{}, err
-	}
-	req.Header.Set("Authorization", "Bearer "+c.Token)
+// Response is the standard {success, message, data} envelope most endpoints return
+type Response[T any] struct {
+	Success bool   `json:"success"`
+	Message string `json:"message"`
+	Data    T      `json:"data"`
+}
 
-	resp, err := c.http.Do(req)
-	if err != nil {
-		return Status{}, fmt.Errorf("reaching %s: %w", c.BaseURL, err)
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		return Status{}, fmt.Errorf("unexpected status from %s: %s", c.BaseURL, resp.Status)
-	}
-
-	return Status{Source: "api", Details: c.BaseURL}, nil
+type ListResponse[T any] struct {
+	Success bool   `json:"success"`
+	Message string `json:"message"`
+	Data    []T    `json:"data"`
+	Meta    struct {
+		Pagination struct {
+			PerPage    int     `json:"per_page"`
+			NextCursor *string `json:"next_cursor"`
+			PrevCursor *string `json:"prev_cursor"`
+		} `json:"pagination"`
+	} `json:"meta"`
 }
 
 func (c *APIClient) RevokeCurrentToken(ctx context.Context) error {
-	req, err := http.NewRequestWithContext(ctx, http.MethodPost, c.BaseURL+"/v1/cli/logout", nil)
-	if err != nil {
-		return err
-	}
-	req.Header.Set("Authorization", "Bearer "+c.Token)
-
-	resp, err := c.http.Do(req)
-	if err != nil {
-		return fmt.Errorf("reaching %s: %w", c.BaseURL, err)
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("unexpected status from %s: %s", c.BaseURL, resp.Status)
-	}
-
-	return nil
+	return c.doJSON(ctx, http.MethodPost, "/v1/cli/logout", nil, nil)
 }

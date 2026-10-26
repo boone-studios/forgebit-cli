@@ -22,6 +22,7 @@ var licensesCmd = &cobra.Command{
 }
 
 func init() {
+	licensesCmd.PersistentFlags().Bool("json", false, "print the API response as JSON")
 	rootCmd.AddCommand(licensesCmd)
 }
 
@@ -219,7 +220,6 @@ func init() {
 	issueCmd.Flags().StringToString("metadata", nil, "metadata key=value pairs, repeatable")
 	issueCmd.Flags().StringToString("features", nil, "feature flag key=value pairs, repeatable")
 	issueCmd.Flags().String("order-reference", "", "external order/purchase reference")
-	issueCmd.Flags().Bool("json", false, "print the raw API response as JSON")
 	_ = issueCmd.MarkFlagRequired("product-id")
 	_ = issueCmd.MarkFlagRequired("customer-email")
 	_ = issueCmd.MarkFlagRequired("tier")
@@ -232,9 +232,6 @@ func init() {
 	listCmd.Flags().Bool("active", false, "only active licenses")
 	listCmd.Flags().Bool("inactive", false, "only inactive/expired/revoked licenses")
 	listCmd.Flags().Int("per-page", 15, "results per page (max 100)")
-	listCmd.Flags().Bool("json", false, "print the raw API response as JSON")
-
-	showCmd.Flags().Bool("json", false, "print the raw API response as JSON")
 
 	licensesCmd.AddCommand(issueCmd, listCmd, showCmd)
 }

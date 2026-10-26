@@ -63,7 +63,6 @@ func init() {
 	renewCmd.Flags().Bool("force", false, "bypass the min-days guards")
 	renewCmd.Flags().Int("min-days-before-expiry", 30, "reject renewal if more than this many days remain")
 	renewCmd.Flags().Int("min-days-between-renewals", 7, "reject renewal if renewed this recently")
-	renewCmd.Flags().Bool("json", false, "print the raw API response as JSON")
 	_ = renewCmd.MarkFlagRequired("duration")
 
 	licensesCmd.AddCommand(renewCmd)

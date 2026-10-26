@@ -21,10 +21,6 @@ var vendorListCmd = &cobra.Command{
 	Short: "List vendors the CLI has stored credentials for",
 	RunE: func(c *cobra.Command, args []string) error {
 		if len(cfg.Profiles) == 0 {
-			if cfg.Token != "" {
-				fmt.Println("Logged in from before multi-vendor support was added — run `forgebit login` again to name and track this vendor, or add another.")
-				return nil
-			}
 			fmt.Println("No stored vendors. Run `forgebit login` to add one.")
 			return nil
 		}

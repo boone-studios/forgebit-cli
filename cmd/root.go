@@ -18,8 +18,8 @@ var vendorFlag string
 var rootCmd = &cobra.Command{
 	Use:   "forgebit",
 	Short: "forgebit-cli is a standalone tool for working with Forgebit",
-	Long: `forgebit-cli talks to the Forgebit API when a connection and
-credentials are available, and falls back to local offline data otherwise.`,
+	Long: `forgebit-cli talks to the Forgebit API to manage licenses, products,
+and webhooks. Supported license keys can also be verified fully offline.`,
 	SilenceUsage:  true,
 	SilenceErrors: true,
 }
@@ -39,7 +39,7 @@ func friendlyError(err error) string {
 	return err.Error()
 }
 
-// Order matters: explicit token, then --vendor, then active profile, then legacy token
+// Order matters: explicit token, then --vendor, then active profile
 func resolveAPIClient() (*forgebit.APIClient, error) {
 	if cfg.Offline {
 		return nil, errors.New("--offline is set; remove it to make API calls")
@@ -48,7 +48,7 @@ func resolveAPIClient() (*forgebit.APIClient, error) {
 		return nil, errors.New("no API URL configured; pass --api-url or set it in config")
 	}
 
-	if rootCmd.PersistentFlags().Changed("token") {
+	if cfg.Token != "" {
 		return forgebit.NewAPIClient(cfg.APIBaseURL, cfg.Token), nil
 	}
 
@@ -62,10 +62,6 @@ func resolveAPIClient() (*forgebit.APIClient, error) {
 
 	if profile, ok := cfg.ActiveProfile(); ok {
 		return forgebit.NewAPIClient(cfg.APIBaseURL, profile.Token), nil
-	}
-
-	if cfg.Token != "" {
-		return forgebit.NewAPIClient(cfg.APIBaseURL, cfg.Token), nil
 	}
 
 	return nil, errors.New("not logged in; run `forgebit login` first")
