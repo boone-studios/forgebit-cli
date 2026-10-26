@@ -12,6 +12,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - `forgebit licenses activations <license-id>` — list a license's active sessions and seat usage
 - `forgebit licenses deactivate <activation-id>` — end one session, optionally only if `--client-id` matches
 - `forgebit licenses deactivate-all <license-id>` — end every active session for a license
+- `forgebit products release <product-id> --file <artifact> --version <x.y.z>` — create a version, upload the artifact, verify its SHA-256, and wait for processing to finish
 
 ### Changed
 
