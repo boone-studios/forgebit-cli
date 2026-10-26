@@ -15,6 +15,9 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - `forgebit products release <product-id> --file <artifact> --version <x.y.z>` — create a version, upload the artifact, verify its SHA-256, and wait for processing to finish
 - `forgebit licenses lookup --product-id <id> --email <email>` — find every license a customer holds for a product by exact email; shows keys when the API key has `download_license`
 - `forgebit licenses keys list` and `forgebit licenses keys create` — list the vendor's Ed25519 signing keys or generate a new one (`create` asks for confirmation, since apps verifying offline may need the new public key; `--yes` skips it)
+- `forgebit licenses download <license-id>` — save the signed license file (`-o` to name it, `-o -` for stdout; won't overwrite without `--force`)
+- `forgebit licenses file-link <license-id>` — temporary web link to download the license file
+- `forgebit licenses download-link <license-id>` — temporary link to the product artifact the license covers, for your own purchase emails
 
 ### Changed
 
