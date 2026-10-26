@@ -13,6 +13,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - `forgebit licenses deactivate <activation-id>` — end one session, optionally only if `--client-id` matches
 - `forgebit licenses deactivate-all <license-id>` — end every active session for a license
 - `forgebit products release <product-id> --file <artifact> --version <x.y.z>` — create a version, upload the artifact, verify its SHA-256, and wait for processing to finish
+- `forgebit licenses lookup --product-id <id> --email <email>` — find every license a customer holds for a product by exact email; shows keys when the API key has `download_license`
 
 ### Changed
 
@@ -22,6 +23,10 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ### Fixed
 
 - List commands printed a next-page cursor but had no way to use it; `licenses list`, `products list`, `webhooks list`, and `webhooks logs list` now take `--cursor`
+
+### Security
+
+- `products release` no longer prints the presigned upload URL (whose query string is a credential) when the upload fails
 
 ### Removed
 

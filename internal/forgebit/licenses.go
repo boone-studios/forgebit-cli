@@ -190,6 +190,23 @@ type ShowLicenseResponse struct {
 	License License `json:"license"`
 }
 
+// Key is only present when the API key has the download_license permission
+type CustomerLicense struct {
+	License
+	CustomerEmail      string  `json:"customer_email"`
+	Status             string  `json:"status"`
+	IsFloating         bool    `json:"is_floating"`
+	MaxConcurrentUsers *int    `json:"max_concurrent_users"`
+	Key                *string `json:"key,omitempty"`
+}
+
+// The email goes in the body, not the URL, so it stays out of access logs
+func (c *APIClient) LookupCustomerLicenses(ctx context.Context, productID, email string) (Response[[]CustomerLicense], error) {
+	var out Response[[]CustomerLicense]
+	err := c.doJSON(ctx, http.MethodPost, "/v1/products/"+productID+"/licenses/lookup", map[string]string{"customer_email": email}, &out)
+	return out, err
+}
+
 // days is the window size (1–90); 0 leaves it to the server default
 func (c *APIClient) ExpiringLicenses(ctx context.Context, days int) (Response[[]License], error) {
 	return c.licensesInWindow(ctx, "/v1/licenses/expiring", days)

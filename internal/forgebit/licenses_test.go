@@ -214,3 +214,26 @@ func TestExpiringAndExpiredLicensesSendWindow(t *testing.T) {
 		t.Fatalf("expired: %v", err)
 	}
 }
+
+func TestLookupCustomerLicensesSendsEmailInBody(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		var body map[string]string
+		_ = json.NewDecoder(r.Body).Decode(&body)
+		if r.Method != http.MethodPost || r.URL.Path != "/v1/products/prod_1/licenses/lookup" || r.URL.RawQuery != "" || body["customer_email"] != "jane@example.com" {
+			t.Fatalf("unexpected request: %s %s body %v", r.Method, r.URL, body)
+		}
+		_ = json.NewEncoder(w).Encode(map[string]any{"success": true, "data": []map[string]any{
+			{"id": "lic_1", "tier": "pro", "status": "active", "is_floating": true, "max_concurrent_users": 2, "key": "KEY-1"},
+		}})
+	}))
+	defer server.Close()
+
+	result, err := NewAPIClient(server.URL, "secret").LookupCustomerLicenses(context.Background(), "prod_1", "jane@example.com")
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	got := result.Data[0]
+	if got.ID != "lic_1" || got.Tier != "pro" || got.Status != "active" || *got.MaxConcurrentUsers != 2 || *got.Key != "KEY-1" {
+		t.Fatalf("unexpected result: %+v", got)
+	}
+}
