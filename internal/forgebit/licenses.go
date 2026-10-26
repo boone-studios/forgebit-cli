@@ -190,6 +190,24 @@ type ShowLicenseResponse struct {
 	License License `json:"license"`
 }
 
+// days is the window size (1–90); 0 leaves it to the server default
+func (c *APIClient) ExpiringLicenses(ctx context.Context, days int) (Response[[]License], error) {
+	return c.licensesInWindow(ctx, "/v1/licenses/expiring", days)
+}
+
+func (c *APIClient) ExpiredLicenses(ctx context.Context, days int) (Response[[]License], error) {
+	return c.licensesInWindow(ctx, "/v1/licenses/expired", days)
+}
+
+func (c *APIClient) licensesInWindow(ctx context.Context, path string, days int) (Response[[]License], error) {
+	if days > 0 {
+		path += "?days=" + strconv.Itoa(days)
+	}
+	var out Response[[]License]
+	err := c.doJSON(ctx, http.MethodGet, path, nil, &out)
+	return out, err
+}
+
 func (c *APIClient) ShowLicense(ctx context.Context, id string) (ShowLicenseResponse, error) {
 	var out ShowLicenseResponse
 	err := c.doJSON(ctx, http.MethodGet, "/v1/licenses/"+id, nil, &out)

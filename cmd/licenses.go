@@ -48,6 +48,17 @@ func formatExpiry(expiresAt *string) string {
 	return *expiresAt
 }
 
+func printLicenseRows(licenses []forgebit.License) {
+	if len(licenses) == 0 {
+		fmt.Println("No licenses found.")
+		return
+	}
+	for _, license := range licenses {
+		fmt.Printf("%s  tier:%s  type:%s  env:%s  expires:%s\n",
+			license.ID, license.Tier, license.LicenseType, license.Environment, formatExpiry(license.ExpiresAt))
+	}
+}
+
 var issueCmd = &cobra.Command{
 	Use:   "issue",
 	Short: "Issue a new license",
@@ -164,14 +175,7 @@ var listCmd = &cobra.Command{
 			return printJSON(result)
 		}
 
-		if len(result.Data) == 0 {
-			fmt.Println("No licenses found.")
-			return nil
-		}
-		for _, license := range result.Data {
-			fmt.Printf("%s  tier:%s  type:%s  env:%s  expires:%s\n",
-				license.ID, license.Tier, license.LicenseType, license.Environment, formatExpiry(license.ExpiresAt))
-		}
+		printLicenseRows(result.Data)
 		if result.Meta.Pagination.NextCursor != nil {
 			fmt.Printf("(more results — run again with --cursor %s)\n", *result.Meta.Pagination.NextCursor)
 		}

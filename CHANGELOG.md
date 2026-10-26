@@ -6,6 +6,10 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Added
+
+- `forgebit licenses expiring` and `forgebit licenses expired` — list licenses expiring in the next N days (default 7) or expired in the last N days (default 30), via `--days`
+
 ### Changed
 
 - `forgebit status` reports whether credentials and an API URL are configured, instead of calling a placeholder health endpoint that didn't exist

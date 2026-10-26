@@ -190,3 +190,27 @@ func TestVendorPublicKeyPEM(t *testing.T) {
 		t.Fatal("expected a non-empty PEM")
 	}
 }
+
+func TestExpiringAndExpiredLicensesSendWindow(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		want := map[string]string{"/v1/licenses/expiring": "14", "/v1/licenses/expired": ""}
+		days, ok := want[r.URL.Path]
+		if !ok || r.URL.Query().Get("days") != days {
+			t.Fatalf("unexpected request: %s", r.URL)
+		}
+		_ = json.NewEncoder(w).Encode(map[string]any{
+			"success": true,
+			"data":    []map[string]any{{"id": "lic_1", "expires_at": "2027-02-14T23:59:59.000000Z"}},
+		})
+	}))
+	defer server.Close()
+
+	client := NewAPIClient(server.URL, "secret")
+	expiring, err := client.ExpiringLicenses(context.Background(), 14)
+	if err != nil || len(expiring.Data) != 1 || expiring.Data[0].ID != "lic_1" {
+		t.Fatalf("expiring: %+v, %v", expiring, err)
+	}
+	if _, err := client.ExpiredLicenses(context.Background(), 0); err != nil {
+		t.Fatalf("expired: %v", err)
+	}
+}
