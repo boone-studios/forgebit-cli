@@ -89,13 +89,8 @@ func (c *APIClient) UpdateWebhook(ctx context.Context, id string, params UpdateW
 	return out, err
 }
 
-type DeleteWebhookResponse struct {
-	Success bool   `json:"success"`
-	Message string `json:"message"`
-}
-
-func (c *APIClient) DeleteWebhook(ctx context.Context, id string) (DeleteWebhookResponse, error) {
-	var out DeleteWebhookResponse
+func (c *APIClient) DeleteWebhook(ctx context.Context, id string) (MessageResponse, error) {
+	var out MessageResponse
 	err := c.doJSON(ctx, http.MethodDelete, "/v1/webhooks/"+id, nil, &out)
 	return out, err
 }

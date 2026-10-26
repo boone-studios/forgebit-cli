@@ -9,6 +9,9 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ### Added
 
 - `forgebit licenses expiring` and `forgebit licenses expired` — list licenses expiring in the next N days (default 7) or expired in the last N days (default 30), via `--days`
+- `forgebit licenses activations <license-id>` — list a license's active sessions and seat usage
+- `forgebit licenses deactivate <activation-id>` — end one session, optionally only if `--client-id` matches
+- `forgebit licenses deactivate-all <license-id>` — end every active session for a license
 
 ### Changed
 

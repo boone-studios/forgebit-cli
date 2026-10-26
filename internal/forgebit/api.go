@@ -27,6 +27,12 @@ type Response[T any] struct {
 	Data    T      `json:"data"`
 }
 
+// MessageResponse is for endpoints that return no data, just a confirmation
+type MessageResponse struct {
+	Success bool   `json:"success"`
+	Message string `json:"message"`
+}
+
 type ListResponse[T any] struct {
 	Success bool   `json:"success"`
 	Message string `json:"message"`
