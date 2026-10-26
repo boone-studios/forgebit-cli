@@ -2,9 +2,11 @@ package forgebit
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 )
 
 type ProductVersion struct {
@@ -60,6 +62,11 @@ func UploadVersionArtifact(ctx context.Context, upload VersionUpload, body io.Re
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
+		// *url.Error embeds the full URL, and the presigned query string is a credential
+		var urlErr *url.Error
+		if errors.As(err, &urlErr) {
+			err = urlErr.Err
+		}
 		return fmt.Errorf("uploading artifact: %w", err)
 	}
 	defer resp.Body.Close()
