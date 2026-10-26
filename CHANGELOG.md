@@ -6,6 +6,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-10-26
+
 ### Added
 
 - `forgebit licenses expiring` and `forgebit licenses expired` — list licenses expiring in the next N days (default 7) or expired in the last N days (default 30), via `--days`
@@ -26,6 +28,10 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - `--json` is now available on every `licenses`, `products`, and `webhooks` subcommand
 - `licenses public-key` no longer requires `--vendor-id`; it defaults to the vendor the CLI is acting as (`--vendor` or the active profile)
 
+### Removed
+
+- The pre-release single-account `token` config field. Credentials live only in vendor profiles; `--token` still works for one-off calls
+
 ### Fixed
 
 - List commands printed a next-page cursor but had no way to use it; `licenses list`, `products list`, `webhooks list`, and `webhooks logs list` now take `--cursor`
@@ -34,9 +40,11 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 - `products release` no longer prints the presigned upload URL (whose query string is a credential) when the upload fails
 
-### Removed
+## [0.1.2] - 2026-07-16
 
-- The pre-release single-account `token` config field. Credentials live only in vendor profiles; `--token` still works for one-off calls
+### Changed
+
+- macOS binaries are now signed and notarized, so Gatekeeper no longer blocks them
 
 ## [0.1.1] - 2026-07-16
 
